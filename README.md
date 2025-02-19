@@ -48,9 +48,11 @@ int main()
             delete_account();
             break;
         case 5:
+            printf("\n*******************THANK YOU********************\n");
             exit(0);
         default:
             printf("INVALID NUMBER.\n");
+            getch();
             break;
         }
     }
@@ -88,7 +90,7 @@ void sign_up()
     printf("Enter your mobile number: ");
     scanf("%s",s.phone);
     printf("Enter your address: ");
-    scanf("%s",s.address);
+    scanf(" %[^\n]",s.address);
     printf("Enter your Date of birth(YYYY-MM-DD): ");
     scanf("%s",s.DOB);
     start:
@@ -120,6 +122,7 @@ void sign_up()
         fwrite(&s, sizeof(struct account), 1, fp);
         fclose(fp);
         printf("ACCOUNT CREATED SUCCESFULLY.");
+        getch();
     }
 }
 char* takepassword(char pass[])
@@ -241,13 +244,13 @@ void delete_account()
     {
         fp = fopen("D:\\account.txt", "w");
         fprintf(fp, " ");
-        printf("\nACCOUNT DELETED SUCCESSFULLY\n");
+        printf("\n*****************ACCOUNT DELETED SUCCESSFULLY********************\n");
         getch();
     }
 
     else if (ch == 'N' || ch == 'n')
     {
-        printf("\nACCOUNT DELETION STOPPED\n");
+        printf("\n*****************ACCOUNT DELETION STOPPED***********************\n");
         getch();
     }
 }
