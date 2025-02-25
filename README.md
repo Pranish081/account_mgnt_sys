@@ -1,8 +1,9 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<conio.h>
-struct account{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <conio.h>
+struct account
+{
     char first_name[20];
     char last_name[20];
     char user_name[20];
@@ -11,6 +12,8 @@ struct account{
     char DOB[15];
     char gender;
     char password[15];
+    char password1[15];
+    char nick_name[20];
 };
 void divider()
 {
@@ -26,10 +29,10 @@ void log_in();
 void modify();
 void change_pass();
 void delete_account();
-char* takepassword(char []);
+char takepassword(char[]);
 int main()
 {
-    while(1)
+    while (1)
     {
         system("cls");
         switch (menu())
@@ -50,7 +53,7 @@ int main()
             delete_account();
             break;
         case 6:
-            printf("\n*******************THANK YOU********************\n");
+            printf("\n*******************THANK YOU********************\n\n");
             exit(0);
         default:
             printf("INVALID NUMBER.\n");
@@ -73,7 +76,7 @@ int menu()
     printf("6. EXIT.\n");
     divider();
     printf("Enter your choice. ");
-    scanf("%d",&c);
+    scanf("%d", &c);
     return c;
 }
 void sign_up()
@@ -84,34 +87,34 @@ void sign_up()
     char pass2[20];
     printf("CREATING YOUR ACCOUNT....\n");
     divider();
-    printf("Enter your first name: ");
-    scanf("%s",s.first_name);
-    printf("Enter your last name: ");
-    scanf("%s",s.last_name);
-    printf("Enter your mobile number: ");
-    scanf("%s",s.phone);
-    printf("Enter your address: ");
-    scanf(" %[^\n]",s.address);
-    printf("Enter your Date of birth(YYYY-MM-DD): ");
-    scanf("%s",s.DOB);
-    start:
-    printf("Enter your Gender(M/F): ");
-    scanf(" %c",&s.gender);
-    if (s.gender != 'M'  && s.gender != 'F' )
+    printf("Enter your first name : ");
+    scanf("%s", s.first_name);
+    printf("Enter your last name : ");
+    scanf("%s", s.last_name);
+    printf("Enter your mobile number : ");
+    scanf("%s", s.phone);
+    printf("Enter your address : ");
+    scanf(" %[^\n]", s.address);
+    printf("Enter your Date of birth(YYYY-MM-DD) : ");
+    scanf("%s", s.DOB);
+start:
+    printf("Enter your Gender(M/F) : ");
+    scanf(" %c", &s.gender);
+    if (s.gender != 'M' && s.gender != 'F')
     {
         printf("INVALID GENDER!\n");
         goto start;
     }
-    printf("Enter your user name: ");
-    scanf("%s",s.user_name);
-    top:
-    printf("Enter your password: ");
+    printf("Enter your user name : ");
+    scanf("%s", s.user_name);
+top:
+    printf("Enter your password : ");
     takepassword(s.password);
     printf("\n");
-    printf("Confirm your password: ");
+    printf("Confirm your password : ");
     takepassword(pass2);
     printf("\n");
-    if(strcmp(pass2,s.password) !=0)
+    if (strcmp(pass2, s.password) != 0)
     {
         printf("Passwords doesn't match try again.\n");
         goto top;
@@ -119,16 +122,16 @@ void sign_up()
     else
     {
         FILE *fp = fopen("D:\\account.txt", "wb");
-        printf("\nEnter security question for changing password: \n");
-        printf("Your nickname: ");
-        scanf("%s",nick_name);
+        printf("\nEnter security question (In Case You Forget Your Password) \n");
+        printf("What is your nickname? : ");
+        scanf("%s", s.nick_name);
         fwrite(&s, sizeof(struct account), 1, fp);
         fclose(fp);
         printf("\n*************ACCOUNT CREATED SUCCESFULLY*************");
         getch();
     }
 }
-char* takepassword(char pass[])
+char takepassword(char pass[])
 {
     int i = 0;
     char ch;
@@ -165,7 +168,7 @@ void log_in()
     system("cls");
     printf("LOGGING IN....\n");
     divider();
-    char user[30], log_pass[20];
+    char user[20], log_pass[15], nick[20], pass2[15];
     struct account s;
     FILE *fp = fopen("D:\\account.txt", "rb");
     fread(&s, sizeof(struct account), 1, fp);
@@ -180,12 +183,61 @@ void log_in()
     else
     {
     logpass:
-        printf("Enter password : ");
+        printf("\nEnter password : ");
         takepassword(log_pass);
         if (strcmp(s.password, log_pass))
         {
             printf("\nINCORRET PASSWORD \n");
-            goto logpass;
+            printf("\nDid you forget your password?[Y/N] : ");
+            char f = getche();
+            if (f == 'Y' || f == 'y')
+            {
+                nickname:
+                printf("\nWhat is your nickname? : ");
+                scanf("%s", nick);
+                if (strcmp(nick, s.nick_name))
+                {
+                    printf("Incorrect Nickname. Please try again.");
+                    goto nickname;
+                }
+                else
+                {
+                top:
+                    printf("\nEnter new password : ");
+                    takepassword(s.password1);
+                    if (strcmp(s.password1, s.password))
+                    {
+                        printf("\n");
+                        printf("Confirm new password : ");
+                        takepassword(pass2);
+                        printf("\n");
+                        if (strcmp(pass2, s.password1))
+                        {
+                            printf("Passwords doesn't match try again.\n");
+                            goto top;
+                        }
+                        else
+                        {
+                            strcpy(s.password, s.password1);
+                            fp = fopen("D:\\account.txt", "w");
+                            fwrite(&s, sizeof(s), 1, fp);
+                            printf("***************PASSWORD CHANGED SUCCESSFULLY***************\n");
+                            getch();
+                            system("cls");
+                            goto logpass;
+                        }
+                    }
+                    else
+                    {
+                        printf("\nNew password cannot be same as Old password.\n");
+                        goto top;
+                    }
+                }
+            }
+            else
+            {
+                goto logpass;
+            }
         }
         else
         {
@@ -197,11 +249,11 @@ void log_in()
             printf("First name   : %s\n", s.first_name);
             printf("Last name    : %s\n", s.last_name);
             printf("Phone number : %s\n", s.phone);
-            printf("Address      : %s\n",s.address);
-            printf("DOB          : %s\n",s.DOB);
+            printf("Address      : %s\n", s.address);
+            printf("DOB          : %s\n", s.DOB);
             printf("Gender       : %c\n", s.gender);
             printf("Username     : %s\n", s.user_name);
-            printf("Password     : %s\n", s.password);
+            printf("Nickname     : %s\n", s.nick_name);
         }
         getch();
     }
@@ -213,85 +265,88 @@ void modify()
     printf("MODIFYING YOUR DATA....\n");
     divider();
     struct account s;
-    char user[20],pass[15];
+    char user1[20], pass[15], nick[20], pass2[15];
     int i;
-    FILE *f = fopen("D:\\account.txt","rb");
-    fread(&s,sizeof(s),1,f);
-    top:
-    printf("Enter username    :");
-    scanf("%s",user);
-    if(strcmp(user,s.user_name))
+    FILE *fp = fopen("D:\\account.txt", "rb+");
+    fread(&s, sizeof(s), 1, fp);
+    top1:
+    printf("Enter username : ");
+    scanf("%s", user1);
+    if (strcmp(user1, s.user_name))
     {
         printf("\nUser name doesn't match.\n");
-        goto top;
+        goto top1;
     }
     top2:
-    printf("Enter password    :");
+    printf("Enter password : ");
     takepassword(pass);
-    if(strcmp(pass,s.password))
+    if (strcmp(pass, s.password))
     {
         printf("\nPassword doesn't match.\n");
         goto top2;
     }
-    fclose(f);
     system("cls");
-    FILE *fp = fopen("D:\\account.txt","rb+");
-    fread(&s,sizeof(s),1,fp);
+    fread(&s, sizeof(s), 1, fp);
     printf("\n*****************WELCOME %s*****************\n", s.first_name);
     divider();
     top3:
     printf("\nWhat do you want to modify :\n");
-    printf("1. First name.\n2. Last name.\n3. Phone number.\n4. Address.\n5. Date of birth.\n6. Gender.\n7. User name\n");
+    printf("1. First name.\n2. Last name.\n3. Phone number.\n4. Address.\n5. Date of birth.\n6. Gender.\n7. User name. \n8. Exit. \n");
     divider();
     printf("\nEnter your choice : ");
-    scanf("%d",&i);
-    switch(i)
+    scanf("%d", &i);
+    switch (i)
     {
     case 1:
         printf("Enter your new First name : ");
-        scanf("%s",s.first_name);
+        scanf("%s", s.first_name);
         fp = fopen("D:\\account.txt", "wb");
         fwrite(&s, sizeof(s), 1, fp);
         printf("\n************FIRST NAME CHANGED SUCCESSFULLY***********\n");
         getch();
-        break;
+        system("cls");
+        goto top3;
     case 2:
         printf("Enter your new Last name : ");
-        scanf("%s",s.last_name);
+        scanf("%s", s.last_name);
         fp = fopen("D:\\account.txt", "wb");
         fwrite(&s, sizeof(s), 1, fp);
         printf("\n************LAST NAME CHANGED SUCCESSFULLY************\n");
         getch();
-        break;
+        system("cls");
+        goto top3;
     case 3:
         printf("Enter your new Phone number : ");
-        scanf("%s",s.phone);
+        scanf("%s", s.phone);
         fp = fopen("D:\\account.txt", "wb");
         fwrite(&s, sizeof(s), 1, fp);
         printf("\n************PHONE NUMBER CHANGED SUCCESSFULLY************\n");
         getch();
-        break;
+        system("cls");
+        goto top3;
     case 4:
         printf("Enter your new Address : ");
-        scanf(" %[^\n]",s.address);
+        scanf(" %[^\n]", s.address);
         fp = fopen("D:\\account.txt", "wb");
         fwrite(&s, sizeof(s), 1, fp);
         printf("\n**************ADDRESS CHANGED SUCCESSFULLY************\n");
         getch();
-        break;
+        system("cls");
+        goto top3;
     case 5:
         printf("Enter your new Date of Birth : ");
-        scanf("%s",s.DOB);
+        scanf("%s", s.DOB);
         fp = fopen("D:\\account.txt", "wb");
         fwrite(&s, sizeof(s), 1, fp);
         printf("\n************DOB CHANGED SUCCESSFULLY************\n");
         getch();
-        break;
+        system("cls");
+        goto top3;
     case 6:
-        start:
+    start:
         printf("Enter your new Gender(M/F): ");
-        scanf(" %c",&s.gender);
-        if (s.gender !='M' && s.gender != 'F' )
+        scanf(" %c", &s.gender);
+        if (s.gender != 'M' && s.gender != 'F')
         {
             printf("INVALID GENDER!\n");
             goto start;
@@ -300,14 +355,18 @@ void modify()
         fwrite(&s, sizeof(s), 1, fp);
         printf("\n************GENDER CHANGED SUCCESSFULLY************\n");
         getch();
-        break;
+        system("cls");
+        goto top3;
     case 7:
-         printf("Enter your User Name : ");
-        scanf("%s",s.user_name);
+        printf("Enter your User Name : ");
+        scanf("%s", s.user_name);
         fp = fopen("D:\\account.txt", "wb");
         fwrite(&s, sizeof(s), 1, fp);
         printf("\n************USER NAME CHANGED SUCCESSFULLY************\n");
         getch();
+        system("cls");
+        goto top3;
+    case 8:
         break;
     default:
         printf("INVALID NUMBER!\n");
@@ -319,70 +378,202 @@ void modify()
 void change_pass()
 {
     system("cls");
-    printf("CHANGING YOUR PASSWORD.....\n");
+    printf("CHANING YOUR PASSWORD....\n");
     divider();
-    char pass2[20];
+    char current[20],pass2[20],nick[20],user1[20];
     struct account s;
     FILE *fp = fopen("D:\\account.txt", "rb");
     fread(&s, sizeof(s), 1, fp);
-    top:
-    printf("Enter new password : ");
-    takepassword(s.password);
-    printf("\n");
-    printf("Confirm new password :");
-    takepassword(pass2);
-    printf("\n");
-    if(strcmp(pass2,s.password))
+    top1:
+    printf("\nEnter username : ");
+    scanf("%s", user1);
+    if (strcmp(user1, s.user_name))
     {
-        printf("Passwords doesn't match try again.\n");
-        goto top;
+        printf("\nUser name doesn't match.\n");
+        goto top1;
+    }
+    current:
+    printf("\nEnter old password : ");
+    takepassword(current);
+    if (strcmp(current, s.password))
+    {
+        printf("\nPassword doesn't match.\n");
+        printf("\nDid you forget your password?[Y/N] : ");
+        char f = getche();
+        if (f == 'Y' || f == 'y')
+        {
+        nickname:
+            printf("\nWhat is your nickname? : ");
+            scanf("%s", nick);
+            if (strcmp(nick, s.nick_name))
+            {
+                printf("Incorrect Nickname. Please try again.");
+                goto nickname;
+            }
+            else
+            {
+            top:
+                printf("/nEnter new password : ");
+                takepassword(s.password1);
+                if (strcmp(s.password1, s.password))
+                {
+                    printf("\nConfirm new password : ");
+                    takepassword(pass2);
+                    if (strcmp(pass2, s.password1))
+                    {
+                        printf("\nPasswords doesn't match try again.\n");
+                        goto top;
+                    }
+                    else
+                    {
+                        strcpy(s.password, s.password1);
+                        fp = fopen("D:\\account.txt", "wb");
+                        fwrite(&s, sizeof(s), 1, fp);
+                        printf("***************PASSWORD CHANGED SUCCESSFULLY***************\n");
+                        getch();
+                    }
+                }
+                else
+                {
+                    printf("\nNew password cannot be same as Old password.\n");
+                    goto top;
+                }
+            }
+        }
+        else
+        {
+            goto current;
+        }
     }
     else
     {
-        fp = fopen("D:\\account.txt", "w");
-        fwrite(&s, sizeof(s), 1, fp);
-        printf("\n***************PASSWORD CHANGED SUCCESSFULLY***************\n");
-        getch();
+    up:
+        printf("\nEnter new password : ");
+        takepassword(s.password1);
+        if (strcmp(s.password1, s.password))
+        {
+            printf("\n");
+            printf("Confirm new password : ");
+            takepassword(pass2);
+            printf("\n");
+            if (strcmp(pass2, s.password1))
+            {
+                printf("Passwords doesn't match try again.\n");
+                goto up;
+            }
+            else
+            {
+                strcpy(s.password, s.password1);
+                fp = fopen("D:\\account.txt", "w");
+                fwrite(&s, sizeof(s), 1, fp);
+                printf("***************PASSWORD CHANGED SUCCESSFULLY***************\n");
+                getch();
+            }
+        }
+        else
+        {
+            printf("\nNew password cannot be same as Old password.\n");
+            goto up;
+        }
     }
     fclose(fp);
 }
 void delete_account()
 {
     system("cls");
+    char user[20];
+    char pass[15];
+    char nick[20];
+    char pass2[20];
+    struct account s;
     printf("DELETING YOUR ACCOUNT....\n");
     divider();
     FILE *fp = fopen("D:\\account.txt", "rb");
-    struct account s;
     fread(&s, sizeof(s), 1, fp);
-    char user[20],pass[15];
-    top:
-    printf("Enter username    :");
-    scanf("%s",user);
-    if(strcmp(user,s.user_name))
+    top1:
+    printf("Enter username : ");
+    scanf("%s", user);
+    if (strcmp(user, s.user_name))
     {
         printf("\nUser name doesn't match.\n");
-        goto top;
+        goto top1;
     }
-    top2:
-    printf("Enter password    :");
-    scanf("%s",pass);
-    if(strcmp(pass,s.password))
+    else
     {
-        printf("\nPassword doesn't match.\n");
         goto top2;
     }
-    printf("\nARE YOU SURE[Y/N]? :");
-    char ch = getche();
-    if (ch == 'Y' || ch == 'y')
+    top2:
+    printf("\nEnter password : ");
+    scanf("%s", pass);
+    if (strcmp(pass, s.password))
     {
-        fp = fopen("D:\\account.txt", "w");
-        fprintf(fp, " ");
-        printf("\n*****************ACCOUNT DELETED SUCCESSFULLY********************\n");
-        getch();
+        printf("\nPassword doesn't match.\n");
+        printf("\nDid you forget your password?[Y/N] : ");
+        char f = getche();
+        if (f == 'Y' || f == 'y')
+        {
+        nickname:
+            printf("\nWhat is your nickname? : ");
+            scanf("%s", nick);
+            if (strcmp(nick, s.nick_name))
+            {
+                printf("Incorrect Nickname. Please try again.");
+                goto nickname;
+            }
+            else
+            {
+            top:
+                printf("\nEnter new password : ");
+                takepassword(s.password1);
+                if (strcmp(s.password1, s.password))
+                {
+                    printf("\n");
+                    printf("Confirm new password : ");
+                    takepassword(pass2);
+                    printf("\n");
+                    if (strcmp(pass2, s.password1))
+                    {
+                        printf("Passwords doesn't match try again.\n");
+                        goto top;
+                    }
+                    else
+                    {
+                        strcpy(s.password, s.password1);
+                        fp = fopen("D:\\account.txt", "w");
+                        fwrite(&s, sizeof(s), 1, fp);
+                        printf("***************PASSWORD CHANGED SUCCESSFULLY***************\n");
+                        getch();
+                        goto top2;
+                    }
+                }
+                else
+                {
+                    printf("\nNew password cannot be same as Old password.\n");
+                    goto top;
+                }
+            }
+        }
+        else
+        {
+            goto top2;
+        }
     }
-    else if (ch == 'N' || ch == 'n')
+    else
     {
-    printf("\n*****************ACCOUNT DELETION STOPPED***********************\n");
-    getch();
+        printf("\nARE YOU SURE THAT YOU WANT TO DELETE YOUR ACCOUNT[Y/N]? : ");
+        char ch = getche();
+        if (ch == 'Y' || ch == 'y')
+        {
+            fp = fopen("D:\\account.txt", "w");
+            fprintf(fp, " ");
+            printf("\n*****************ACCOUNT DELETED SUCCESSFULLY********************\n");
+            getch();
+        }
+        else if (ch == 'N' || ch == 'n')
+        {
+            printf("\n*****************ACCOUNT DELETION STOPPED***********************\n");
+            getch();
+        }
     }
+    fclose(fp);
 }
